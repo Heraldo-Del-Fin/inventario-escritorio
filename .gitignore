@@ -1,0 +1,11 @@
+node_modules/
+out/
+release/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+
+# Esquema de referencia interna (modelo de datos + contratos para la futura API) — no es documentación del repo
+ESQUEMA.md
