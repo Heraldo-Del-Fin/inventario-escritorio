@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Card, Form, Input, InputNumber, Select, Typography } from 'antd'
 import type { TipoMovimiento } from '@shared/types'
 import { useProductos } from '@/hooks/useProductos'
-import { useAuthStore } from '@/store/auth.store'
 import { inventarioService } from '@/services/inventario.service'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 import { ErrorAlert } from '@/components/common/ErrorAlert'
@@ -18,7 +17,6 @@ interface AjusteFormValues {
 export function AjusteInventario(): JSX.Element {
   const navigate = useNavigate()
   const { productos, cargando, error: errorProductos } = useProductos()
-  const usuario = useAuthStore((state) => state.usuario)
   const [form] = Form.useForm<AjusteFormValues>()
   const tipo = Form.useWatch('tipo', form) ?? 'AJUSTE'
   const productoId = Form.useWatch('productoId', form)
@@ -36,8 +34,7 @@ export function AjusteInventario(): JSX.Element {
         productoId: values.productoId,
         tipo: values.tipo,
         cantidad: values.cantidad,
-        motivo: values.motivo || undefined,
-        usuarioId: usuario?.id
+        motivo: values.motivo || undefined
       })
       navigate('/inventario')
     } catch (err) {

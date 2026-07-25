@@ -30,7 +30,7 @@ export function Login(): JSX.Element {
         email: values.email.trim(),
         password: values.password
       })
-      login(sesion.usuario, sesion.token)
+      login(sesion.usuario)
       navigate(destino, { replace: true })
     } catch {
       setError('Correo o contraseña incorrectos')

@@ -5,7 +5,9 @@ export const comprasService = {
     return window.api.compras.listar()
   },
 
-  crear: async (compra: Omit<OrdenCompra, 'id' | 'creadoEn'>): Promise<OrdenCompra> => {
+  crear: async (
+    compra: Omit<OrdenCompra, 'id' | 'creadoEn' | 'usuarioId'>
+  ): Promise<OrdenCompra> => {
     return window.api.compras.crear(compra)
   }
 }

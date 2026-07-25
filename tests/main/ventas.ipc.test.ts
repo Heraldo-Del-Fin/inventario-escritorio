@@ -15,6 +15,7 @@ vi.mock('@main/store/localStore', () => ({
 
 const { registerVentasIpc } = await import('@main/ipc/ventas.ipc')
 const { PRODUCTOS_COLLECTION } = await import('@main/inventario/stock')
+const { limpiarSesion, setSesion } = await import('@main/api/session')
 registerVentasIpc()
 
 function producto(overrides: Partial<Producto> = {}): Producto {
@@ -34,6 +35,7 @@ function producto(overrides: Partial<Producto> = {}): Producto {
 describe('ventas.ipc', () => {
   beforeEach(() => {
     store.reset()
+    limpiarSesion()
   })
 
   it('lista vacío por defecto', async () => {
@@ -123,16 +125,31 @@ describe('ventas.ipc', () => {
     expect(productos.find((p) => p.id === 'p2')?.stock).toBe(9)
   })
 
-  it('propaga el usuarioId de la venta a los movimientos que genera', async () => {
+  it('estampa el usuarioId de la sesión activa en main en la venta y en los movimientos que genera', async () => {
     store.writeCollection(PRODUCTOS_COLLECTION, [producto({ stock: 10 })])
+    setSesion({
+      usuario: { id: 'u1', nombre: 'Ana', email: 'a@x.com', rol: 'VENDEDOR' },
+      accessToken: 'a',
+      refreshToken: 'r'
+    })
 
     const venta = await ipc.invoke<Venta>(IpcChannels.VENTAS_CREAR, {
-      items: [{ productoId: 'p1', cantidad: 4, precioUnitario: 10 }],
-      usuarioId: 'u1'
+      items: [{ productoId: 'p1', cantidad: 4, precioUnitario: 10 }]
     })
     expect(venta.usuarioId).toBe('u1')
 
     const movimientos = store.data.get('movimientos') as { usuarioId?: string }[]
     expect(movimientos[0].usuarioId).toBe('u1')
+  })
+
+  it('ignora cualquier usuarioId que mande el renderer: sin sesión activa, queda undefined', async () => {
+    store.writeCollection(PRODUCTOS_COLLECTION, [producto({ stock: 10 })])
+
+    const venta = await ipc.invoke<Venta>(IpcChannels.VENTAS_CREAR, {
+      items: [{ productoId: 'p1', cantidad: 4, precioUnitario: 10 }],
+      usuarioId: 'lo-que-mande-el-renderer-no-cuenta'
+    })
+
+    expect(venta.usuarioId).toBeUndefined()
   })
 })

@@ -15,11 +15,13 @@ vi.mock('@main/store/localStore', () => ({
 
 const { registerInventarioIpc } = await import('@main/ipc/inventario.ipc')
 const { PRODUCTOS_COLLECTION } = await import('@main/inventario/stock')
+const { limpiarSesion, setSesion } = await import('@main/api/session')
 registerInventarioIpc()
 
 describe('inventario.ipc', () => {
   beforeEach(() => {
     store.reset()
+    limpiarSesion()
   })
 
   it('lista vacío por defecto', async () => {
@@ -51,5 +53,32 @@ describe('inventario.ipc', () => {
 
     const productos = store.data.get(PRODUCTOS_COLLECTION) as Producto[]
     expect(productos[0].stock).toBe(10)
+  })
+
+  it('estampa el usuarioId de la sesión activa en main (no del payload del renderer)', async () => {
+    store.writeCollection(PRODUCTOS_COLLECTION, [
+      {
+        id: 'p1',
+        sku: 'SKU-1',
+        nombre: 'Tornillo',
+        precio: 10,
+        stock: 5,
+        stockMinimo: 1,
+        creadoEn: '2026-01-01T00:00:00.000Z',
+        actualizadoEn: '2026-01-01T00:00:00.000Z'
+      } satisfies Producto
+    ])
+    setSesion({
+      usuario: { id: 'u1', nombre: 'Ana', email: 'a@x.com', rol: 'ALMACEN' },
+      accessToken: 'a',
+      refreshToken: 'r'
+    })
+
+    const movimiento = await ipc.invoke<MovimientoInventario>(
+      IpcChannels.INVENTARIO_REGISTRAR_MOVIMIENTO,
+      { productoId: 'p1', tipo: 'ENTRADA', cantidad: 5 }
+    )
+
+    expect(movimiento.usuarioId).toBe('u1')
   })
 })

@@ -89,7 +89,6 @@ export interface Credenciales {
 
 export interface SesionAuth {
   usuario: Usuario
-  token: string
 }
 
 export type EntidadSincronizable =

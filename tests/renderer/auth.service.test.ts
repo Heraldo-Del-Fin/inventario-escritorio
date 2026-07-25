@@ -4,8 +4,7 @@ import { authService } from '@/services/auth.service'
 import type { SesionAuth } from '@shared/types'
 
 const sesion: SesionAuth = {
-  usuario: { id: 'u1', nombre: 'Admin', email: 'admin@inventario.local', rol: 'ADMIN' },
-  token: 'token-123'
+  usuario: { id: 'u1', nombre: 'Admin', email: 'admin@inventario.local', rol: 'ADMIN' }
 }
 
 describe('auth.service', () => {

@@ -5,7 +5,7 @@ export const ventasService = {
     return window.api.ventas.listar()
   },
 
-  crear: async (venta: Omit<Venta, 'id' | 'creadoEn' | 'total'>): Promise<Venta> => {
+  crear: async (venta: Omit<Venta, 'id' | 'creadoEn' | 'total' | 'usuarioId'>): Promise<Venta> => {
     return window.api.ventas.crear(venta)
   }
 }

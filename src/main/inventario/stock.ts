@@ -6,7 +6,7 @@ import { encolarCambio } from '../sync/outbox'
 export const MOVIMIENTOS_COLLECTION = 'movimientos'
 export const PRODUCTOS_COLLECTION = 'productos'
 
-export type MovimientoNuevo = Omit<MovimientoInventario, 'id' | 'creadoEn'>
+export type MovimientoNuevo = Omit<MovimientoInventario, 'id' | 'creadoEn' | 'usuarioId'>
 
 function aplicarMovimientoAlStock(
   productos: Producto[],
@@ -39,7 +39,10 @@ function validarMovimiento(datos: MovimientoNuevo, producto: Producto): void {
   }
 }
 
-export function registrarMovimiento(datos: MovimientoNuevo): MovimientoInventario {
+export function registrarMovimiento(
+  datos: MovimientoNuevo,
+  usuarioId?: string
+): MovimientoInventario {
   const productos = readCollection<Producto>(PRODUCTOS_COLLECTION)
   const producto = productos.find((p) => p.id === datos.productoId)
 
@@ -52,6 +55,7 @@ export function registrarMovimiento(datos: MovimientoNuevo): MovimientoInventari
   const movimiento: MovimientoInventario = {
     ...datos,
     id: randomUUID(),
+    usuarioId,
     creadoEn: new Date().toISOString()
   }
 

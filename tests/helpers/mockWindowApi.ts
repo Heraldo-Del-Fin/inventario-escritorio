@@ -3,7 +3,8 @@ import { vi } from 'vitest'
 export function installMockWindowApi() {
   const api = {
     auth: {
-      login: vi.fn()
+      login: vi.fn(),
+      logout: vi.fn()
     },
     usuarios: {
       listar: vi.fn(),

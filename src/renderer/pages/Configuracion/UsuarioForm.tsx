@@ -19,7 +19,7 @@ export function UsuarioForm(): JSX.Element {
   const { id } = useParams<{ id: string }>()
   const esEdicion = Boolean(id)
   const navigate = useNavigate()
-  const { usuario: usuarioActual, login, token } = useAuth()
+  const { usuario: usuarioActual, login } = useAuth()
   const [form] = Form.useForm<UsuarioFormValues>()
 
   const [cargando, setCargando] = useState(esEdicion)
@@ -52,8 +52,8 @@ export function UsuarioForm(): JSX.Element {
         }
         const actualizado = await usuariosService.actualizar(id, cambios)
 
-        if (usuarioActual?.id === id && token) {
-          login(actualizado, token)
+        if (usuarioActual?.id === id) {
+          login(actualizado)
         }
       } else {
         if (!values.password) {

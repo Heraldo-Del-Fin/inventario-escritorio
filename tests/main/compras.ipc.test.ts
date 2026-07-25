@@ -15,6 +15,7 @@ vi.mock('@main/store/localStore', () => ({
 
 const { registerComprasIpc } = await import('@main/ipc/compras.ipc')
 const { PRODUCTOS_COLLECTION } = await import('@main/inventario/stock')
+const { limpiarSesion, setSesion } = await import('@main/api/session')
 registerComprasIpc()
 
 function producto(overrides: Partial<Producto> = {}): Producto {
@@ -34,6 +35,7 @@ function producto(overrides: Partial<Producto> = {}): Producto {
 describe('compras.ipc', () => {
   beforeEach(() => {
     store.reset()
+    limpiarSesion()
   })
 
   it('lista vacío por defecto', async () => {
@@ -115,12 +117,16 @@ describe('compras.ipc', () => {
     expect(movimientos[0].motivo).toBe(`Compra ${compra.id}`)
   })
 
-  it('propaga el usuarioId de la compra a los movimientos que genera', async () => {
+  it('estampa el usuarioId de la sesión activa en main en la compra y en los movimientos que genera', async () => {
     store.writeCollection(PRODUCTOS_COLLECTION, [producto({ stock: 5 })])
+    setSesion({
+      usuario: { id: 'u1', nombre: 'Ana', email: 'a@x.com', rol: 'ALMACEN' },
+      accessToken: 'a',
+      refreshToken: 'r'
+    })
 
     const compra = await ipc.invoke<OrdenCompra>(IpcChannels.COMPRAS_CREAR, {
-      items: [{ productoId: 'p1', cantidad: 4 }],
-      usuarioId: 'u1'
+      items: [{ productoId: 'p1', cantidad: 4 }]
     })
     expect(compra.usuarioId).toBe('u1')
 

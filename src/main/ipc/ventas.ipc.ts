@@ -2,13 +2,14 @@ import { randomUUID } from 'crypto'
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc-channels'
 import type { ItemVenta, Producto, Venta } from '@shared/types'
+import { getSesion } from '../api/session'
 import { readCollection, writeCollection } from '../store/localStore'
 import { PRODUCTOS_COLLECTION, registrarMovimiento } from '../inventario/stock'
 import { encolarCambio } from '../sync/outbox'
 
 const VENTAS_COLLECTION = 'ventas'
 
-type VentaNueva = Omit<Venta, 'id' | 'creadoEn' | 'total'>
+type VentaNueva = Omit<Venta, 'id' | 'creadoEn' | 'total' | 'usuarioId'>
 
 function calcularTotal(items: ItemVenta[]): number {
   return items.reduce((acc, item) => acc + item.precioUnitario * item.cantidad, 0)
@@ -47,10 +48,12 @@ export function registerVentasIpc(): void {
 
     validarStockDisponible(datos.items)
 
+    const usuarioId = getSesion()?.usuario.id
     const venta: Venta = {
       ...datos,
       id: randomUUID(),
       total: calcularTotal(datos.items),
+      usuarioId,
       creadoEn: new Date().toISOString()
     }
 
@@ -59,13 +62,15 @@ export function registerVentasIpc(): void {
     encolarCambio('ventas', 'CREAR', venta.id, venta)
 
     for (const item of venta.items) {
-      registrarMovimiento({
-        productoId: item.productoId,
-        tipo: 'SALIDA',
-        cantidad: item.cantidad,
-        motivo: `Venta ${venta.id}`,
-        usuarioId: venta.usuarioId
-      })
+      registrarMovimiento(
+        {
+          productoId: item.productoId,
+          tipo: 'SALIDA',
+          cantidad: item.cantidad,
+          motivo: `Venta ${venta.id}`
+        },
+        usuarioId
+      )
     }
 
     return venta

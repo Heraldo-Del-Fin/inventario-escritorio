@@ -1,5 +1,6 @@
 export const IpcChannels = {
   AUTH_LOGIN: 'auth:login',
+  AUTH_LOGOUT: 'auth:logout',
 
   USUARIOS_LISTAR: 'usuarios:listar',
   USUARIOS_OBTENER: 'usuarios:obtener',

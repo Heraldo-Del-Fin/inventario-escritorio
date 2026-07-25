@@ -8,7 +8,7 @@ const usuario: Usuario = { id: 'u1', nombre: 'Ana', email: 'ana@x.com', rol: 'VE
 
 describe('useAuth', () => {
   beforeEach(() => {
-    useAuthStore.setState({ usuario: null, token: null })
+    useAuthStore.setState({ usuario: null })
   })
 
   it('no está autenticado sin sesión', () => {
@@ -21,19 +21,18 @@ describe('useAuth', () => {
     const { result } = renderHook(() => useAuth())
 
     act(() => {
-      result.current.login(usuario, 'token-123')
+      result.current.login(usuario)
     })
 
     expect(result.current.autenticado).toBe(true)
     expect(result.current.usuario).toEqual(usuario)
-    expect(result.current.token).toBe('token-123')
   })
 
   it('logout vuelve a dejarlo sin autenticar', () => {
     const { result } = renderHook(() => useAuth())
 
     act(() => {
-      result.current.login(usuario, 'token-123')
+      result.current.login(usuario)
     })
     act(() => {
       result.current.logout()

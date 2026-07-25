@@ -94,6 +94,14 @@ describe('registrarMovimiento', () => {
     ).toThrowError(/no puede ser negativo/)
   })
 
+  it('estampa el usuarioId recibido como segundo argumento (no viene en los datos del cliente)', () => {
+    store.writeCollection(PRODUCTOS_COLLECTION, [producto({ stock: 5 })])
+
+    const movimiento = registrarMovimiento({ productoId: 'p1', tipo: 'ENTRADA', cantidad: 1 }, 'u1')
+
+    expect(movimiento.usuarioId).toBe('u1')
+  })
+
   it('acumula los movimientos en vez de pisarlos', () => {
     store.writeCollection(PRODUCTOS_COLLECTION, [producto({ stock: 10 })])
 

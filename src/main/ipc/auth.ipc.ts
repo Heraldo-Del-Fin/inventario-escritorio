@@ -1,26 +1,31 @@
-import { randomUUID } from 'crypto'
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc-channels'
-import type { Credenciales, SesionAuth } from '@shared/types'
-import { verifyPassword } from '../auth/password'
-import { buscarPorEmail, seedAdminPorDefecto, sinCredenciales } from '../auth/usuarios.repository'
+import type { Credenciales, SesionAuth, Usuario } from '@shared/types'
+import { apiClient } from '../api/client'
+import { limpiarSesion, setSesion } from '../api/session'
+
+interface RespuestaLogin {
+  accessToken: string
+  refreshToken: string
+  usuario: Usuario
+}
 
 export function registerAuthIpc(): void {
-  seedAdminPorDefecto()
-
   ipcMain.handle(
     IpcChannels.AUTH_LOGIN,
     async (_event, credenciales: Credenciales): Promise<SesionAuth> => {
-      const usuario = buscarPorEmail(credenciales.email)
+      const { accessToken, refreshToken, usuario } = await apiClient.post<RespuestaLogin>(
+        '/auth/login',
+        credenciales
+      )
 
-      if (!usuario || !verifyPassword(credenciales.password, usuario.passwordHash)) {
-        throw new Error('Correo o contraseña incorrectos')
-      }
+      setSesion({ usuario, accessToken, refreshToken })
 
-      return {
-        usuario: sinCredenciales(usuario),
-        token: randomUUID()
-      }
+      return { usuario }
     }
   )
+
+  ipcMain.handle(IpcChannels.AUTH_LOGOUT, async (): Promise<void> => {
+    limpiarSesion()
+  })
 }

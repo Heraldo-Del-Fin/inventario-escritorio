@@ -6,7 +6,7 @@ export const inventarioService = {
   },
 
   registrarMovimiento: async (
-    movimiento: Omit<MovimientoInventario, 'id' | 'creadoEn'>
+    movimiento: Omit<MovimientoInventario, 'id' | 'creadoEn' | 'usuarioId'>
   ): Promise<MovimientoInventario> => {
     return window.api.inventario.registrarMovimiento(movimiento)
   }

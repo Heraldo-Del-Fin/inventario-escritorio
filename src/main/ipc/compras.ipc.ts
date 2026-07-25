@@ -2,13 +2,14 @@ import { randomUUID } from 'crypto'
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc-channels'
 import type { ItemCompra, OrdenCompra, Producto } from '@shared/types'
+import { getSesion } from '../api/session'
 import { readCollection, writeCollection } from '../store/localStore'
 import { PRODUCTOS_COLLECTION, registrarMovimiento } from '../inventario/stock'
 import { encolarCambio } from '../sync/outbox'
 
 const COMPRAS_COLLECTION = 'compras'
 
-type CompraNueva = Omit<OrdenCompra, 'id' | 'creadoEn'>
+type CompraNueva = Omit<OrdenCompra, 'id' | 'creadoEn' | 'usuarioId'>
 
 function validarItemsCompra(items: ItemCompra[]): void {
   const productos = readCollection<Producto>(PRODUCTOS_COLLECTION)
@@ -39,9 +40,11 @@ export function registerComprasIpc(): void {
 
       validarItemsCompra(datos.items)
 
+      const usuarioId = getSesion()?.usuario.id
       const compra: OrdenCompra = {
         ...datos,
         id: randomUUID(),
+        usuarioId,
         creadoEn: new Date().toISOString()
       }
 
@@ -50,13 +53,15 @@ export function registerComprasIpc(): void {
       encolarCambio('compras', 'CREAR', compra.id, compra)
 
       for (const item of compra.items) {
-        registrarMovimiento({
-          productoId: item.productoId,
-          tipo: 'ENTRADA',
-          cantidad: item.cantidad,
-          motivo: `Compra ${compra.id}`,
-          usuarioId: compra.usuarioId
-        })
+        registrarMovimiento(
+          {
+            productoId: item.productoId,
+            tipo: 'ENTRADA',
+            cantidad: item.cantidad,
+            motivo: `Compra ${compra.id}`
+          },
+          usuarioId
+        )
       }
 
       return compra

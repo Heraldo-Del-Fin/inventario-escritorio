@@ -83,7 +83,9 @@ export function Respaldos(): JSX.Element {
       if (resultado.enviados > 0) {
         message.success(`${resultado.enviados} cambio(s) sincronizado(s)`)
       } else if (resultado.fallidos > 0) {
-        message.warning('No se pudo sincronizar todavía: la API no está configurada')
+        message.warning(
+          `${resultado.fallidos} cambio(s) no se pudieron sincronizar. Mirá "Último error" en la tabla para el detalle.`
+        )
       } else {
         message.info('No había cambios pendientes')
       }

@@ -5,6 +5,8 @@ import type {
   EstadoSincronizacion,
   OperacionSync
 } from '@shared/types'
+import { apiClient } from '../api/client'
+import { getSesion } from '../api/session'
 import { readCollection, writeCollection } from '../store/localStore'
 
 export const CAMBIOS_PENDIENTES_COLLECTION = 'cambios_pendientes'
@@ -46,13 +48,79 @@ export function obtenerEstadoSync(): EstadoSincronizacion {
   }
 }
 
+const RUTAS: Record<EntidadSincronizable, string> = {
+  productos: '/productos',
+  proveedores: '/proveedores',
+  clientes: '/clientes',
+  ventas: '/ventas',
+  compras: '/compras',
+  movimientos: '/movimientos'
+}
+
 /**
- * Placeholder: acá se conecta la llamada HTTP real cuando la API exista.
- * Hasta entonces, cualquier intento de sincronizar falla de forma controlada
- * y el cambio queda marcado como ERROR (no se pierde ni se descarta).
+ * Cada entidad local tiene más campos de los que la API acepta en el body (ids/timestamps
+ * que la API gestiona sola, `esGeneral`, `activo`, `total`/`usuarioId` recalculados server-side,
+ * etc.). Con `forbidNonWhitelisted` activo en la API, mandar un campo de más devuelve 400 —
+ * por eso acá se arma explícitamente qué va en cada request en vez de reenviar el payload tal cual.
  */
-async function enviarCambioApi(_cambio: CambioPendiente): Promise<void> {
-  throw new Error('La API todavía no está configurada')
+const CAMPOS_CREAR: Record<EntidadSincronizable, string[]> = {
+  productos: [
+    'id',
+    'sku',
+    'nombre',
+    'descripcion',
+    'precio',
+    'stock',
+    'stockMinimo',
+    'proveedorId',
+    'imagenUrl',
+    'creadoEn'
+  ],
+  proveedores: ['id', 'nombre', 'contacto', 'telefono', 'email'],
+  clientes: ['id', 'nombre', 'telefono', 'email'],
+  ventas: ['id', 'clienteId', 'items', 'sucursalId', 'creadoEn'],
+  compras: ['id', 'proveedorId', 'items', 'sucursalId', 'creadoEn'],
+  movimientos: ['id', 'productoId', 'tipo', 'cantidad', 'motivo', 'sucursalId', 'creadoEn']
+}
+
+/** Solo productos/proveedores/clientes tienen PATCH en la API — ventas/compras/movimientos son solo-creación. */
+const CAMPOS_ACTUALIZAR: Partial<Record<EntidadSincronizable, string[]>> = {
+  productos: ['sku', 'nombre', 'descripcion', 'precio', 'stockMinimo', 'proveedorId', 'imagenUrl'],
+  proveedores: ['nombre', 'contacto', 'telefono', 'email'],
+  clientes: ['nombre', 'telefono', 'email']
+}
+
+function pick(payload: unknown, campos: string[]): Record<string, unknown> {
+  const objeto = (payload ?? {}) as Record<string, unknown>
+  const resultado: Record<string, unknown> = {}
+  for (const campo of campos) {
+    if (objeto[campo] !== undefined) resultado[campo] = objeto[campo]
+  }
+  return resultado
+}
+
+async function enviarCambioApi(cambio: CambioPendiente): Promise<void> {
+  if (!getSesion()) {
+    throw new Error('No hay sesión activa para sincronizar')
+  }
+
+  const ruta = RUTAS[cambio.entidad]
+
+  if (cambio.operacion === 'CREAR') {
+    await apiClient.post(ruta, pick(cambio.payload, CAMPOS_CREAR[cambio.entidad]))
+    return
+  }
+
+  if (cambio.operacion === 'ACTUALIZAR') {
+    const campos = CAMPOS_ACTUALIZAR[cambio.entidad]
+    if (!campos) {
+      throw new Error(`"${cambio.entidad}" no admite actualizaciones en la API`)
+    }
+    await apiClient.patch(`${ruta}/${cambio.entidadId}`, pick(cambio.payload, campos))
+    return
+  }
+
+  await apiClient.delete(`${ruta}/${cambio.entidadId}`)
 }
 
 export async function ejecutarSincronizacion(): Promise<{ enviados: number; fallidos: number }> {

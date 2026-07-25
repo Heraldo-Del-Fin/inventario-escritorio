@@ -2,53 +2,68 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IpcChannels } from '@shared/ipc-channels'
 import type { SesionAuth } from '@shared/types'
 import { createIpcMainMock } from '../helpers/mockIpc'
-import { createLocalStoreMock } from '../helpers/mockLocalStore'
 
 const ipc = createIpcMainMock()
-const store = createLocalStoreMock()
+const apiClient = { post: vi.fn() }
 
 vi.mock('electron', () => ({ ipcMain: ipc.ipcMain }))
-vi.mock('@main/store/localStore', () => ({
-  readCollection: store.readCollection,
-  writeCollection: store.writeCollection
-}))
+vi.mock('@main/api/client', () => ({ apiClient }))
 
 const { registerAuthIpc } = await import('@main/ipc/auth.ipc')
+const { getSesion, limpiarSesion, setSesion } = await import('@main/api/session')
 
 describe('auth.ipc', () => {
   beforeEach(() => {
-    store.reset()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    apiClient.post.mockReset()
+    limpiarSesion()
     registerAuthIpc()
   })
 
-  it('permite loguearse con el admin sembrado por defecto', async () => {
+  it('loguea contra la API y guarda la sesión en main (sin exponer los tokens al renderer)', async () => {
+    apiClient.post.mockResolvedValue({
+      accessToken: 'access-1',
+      refreshToken: 'refresh-1',
+      usuario: { id: 'u1', nombre: 'Admin', email: 'admin@inventario.local', rol: 'ADMIN' }
+    })
+
     const sesion = await ipc.invoke<SesionAuth>(IpcChannels.AUTH_LOGIN, {
       email: 'admin@inventario.local',
       password: 'admin123'
     })
 
-    expect(sesion.usuario.email).toBe('admin@inventario.local')
-    expect(sesion.usuario.rol).toBe('ADMIN')
-    expect(sesion.usuario).not.toHaveProperty('passwordHash')
-    expect(sesion.token).toBeTruthy()
+    expect(apiClient.post).toHaveBeenCalledWith('/auth/login', {
+      email: 'admin@inventario.local',
+      password: 'admin123'
+    })
+    expect(sesion).toEqual({
+      usuario: { id: 'u1', nombre: 'Admin', email: 'admin@inventario.local', rol: 'ADMIN' }
+    })
+    expect(sesion).not.toHaveProperty('token')
+    expect(getSesion()).toEqual({
+      usuario: { id: 'u1', nombre: 'Admin', email: 'admin@inventario.local', rol: 'ADMIN' },
+      accessToken: 'access-1',
+      refreshToken: 'refresh-1'
+    })
   })
 
-  it('rechaza una contraseña incorrecta', async () => {
+  it('propaga el error de la API si las credenciales son inválidas', async () => {
+    apiClient.post.mockRejectedValue(new Error('Correo o contraseña incorrectos'))
+
     await expect(
-      ipc.invoke(IpcChannels.AUTH_LOGIN, {
-        email: 'admin@inventario.local',
-        password: 'incorrecta'
-      })
+      ipc.invoke(IpcChannels.AUTH_LOGIN, { email: 'x@x.com', password: 'mal' })
     ).rejects.toThrowError(/Correo o contraseña incorrectos/)
+    expect(getSesion()).toBeNull()
   })
 
-  it('rechaza un email que no existe con el mismo mensaje genérico', async () => {
-    await expect(
-      ipc.invoke(IpcChannels.AUTH_LOGIN, {
-        email: 'no-existe@x.com',
-        password: 'lo-que-sea'
-      })
-    ).rejects.toThrowError(/Correo o contraseña incorrectos/)
+  it('logout limpia la sesión de main', async () => {
+    setSesion({
+      usuario: { id: 'u1', nombre: 'Admin', email: 'a@x.com', rol: 'ADMIN' },
+      accessToken: 'a',
+      refreshToken: 'r'
+    })
+
+    await ipc.invoke(IpcChannels.AUTH_LOGOUT)
+
+    expect(getSesion()).toBeNull()
   })
 })

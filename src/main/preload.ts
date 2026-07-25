@@ -17,16 +17,17 @@ import type {
 type UsuarioNuevo = { nombre: string; email: string; rol: Usuario['rol']; password: string }
 type UsuarioCambios = { nombre?: string; email?: string; rol?: Usuario['rol']; password?: string }
 type ProductoNuevo = Omit<Producto, 'id' | 'creadoEn' | 'actualizadoEn'>
-type MovimientoNuevo = Omit<MovimientoInventario, 'id' | 'creadoEn'>
-type VentaNueva = Omit<Venta, 'id' | 'creadoEn' | 'total'>
-type CompraNueva = Omit<OrdenCompra, 'id' | 'creadoEn'>
+type MovimientoNuevo = Omit<MovimientoInventario, 'id' | 'creadoEn' | 'usuarioId'>
+type VentaNueva = Omit<Venta, 'id' | 'creadoEn' | 'total' | 'usuarioId'>
+type CompraNueva = Omit<OrdenCompra, 'id' | 'creadoEn' | 'usuarioId'>
 type ProveedorNuevo = Omit<Proveedor, 'id'>
 type ClienteNuevo = Omit<Cliente, 'id'>
 
 const api = {
   auth: {
     login: (credenciales: Credenciales): Promise<SesionAuth> =>
-      ipcRenderer.invoke(IpcChannels.AUTH_LOGIN, credenciales)
+      ipcRenderer.invoke(IpcChannels.AUTH_LOGIN, credenciales),
+    logout: (): Promise<void> => ipcRenderer.invoke(IpcChannels.AUTH_LOGOUT)
   },
   usuarios: {
     listar: (): Promise<Usuario[]> => ipcRenderer.invoke(IpcChannels.USUARIOS_LISTAR),

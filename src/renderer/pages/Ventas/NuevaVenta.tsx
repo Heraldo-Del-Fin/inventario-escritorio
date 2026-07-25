@@ -6,7 +6,6 @@ import type { ItemVenta } from '@shared/types'
 import { useProductos } from '@/hooks/useProductos'
 import { useClientes } from '@/hooks/useClientes'
 import { useCarritoStore } from '@/store/carrito.store'
-import { useAuthStore } from '@/store/auth.store'
 import { ventasService } from '@/services/ventas.service'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 import { ErrorAlert } from '@/components/common/ErrorAlert'
@@ -16,7 +15,6 @@ export function NuevaVenta(): JSX.Element {
   const { productos, cargando, error: errorProductos } = useProductos()
   const { clientes, cargando: cargandoClientes, error: errorClientes } = useClientes()
 
-  const usuario = useAuthStore((state) => state.usuario)
   const items = useCarritoStore((state) => state.items)
   const agregarItem = useCarritoStore((state) => state.agregarItem)
   const quitarItem = useCarritoStore((state) => state.quitarItem)
@@ -57,7 +55,7 @@ export function NuevaVenta(): JSX.Element {
     setConfirmando(true)
 
     try {
-      await ventasService.crear({ items, clienteId, usuarioId: usuario?.id })
+      await ventasService.crear({ items, clienteId })
       limpiar()
       navigate('/ventas')
     } catch (err) {

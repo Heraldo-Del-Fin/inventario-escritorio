@@ -5,7 +5,6 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import type { ItemCompra } from '@shared/types'
 import { useProductos } from '@/hooks/useProductos'
 import { useProveedores } from '@/hooks/useProveedores'
-import { useAuthStore } from '@/store/auth.store'
 import { comprasService } from '@/services/compras.service'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 import { ErrorAlert } from '@/components/common/ErrorAlert'
@@ -14,7 +13,6 @@ export function NuevaCompra(): JSX.Element {
   const navigate = useNavigate()
   const { productos, cargando: cargandoProductos, error: errorProductos } = useProductos()
   const { proveedores, cargando: cargandoProveedores, error: errorProveedores } = useProveedores()
-  const usuario = useAuthStore((state) => state.usuario)
 
   const [proveedorId, setProveedorId] = useState<string | undefined>(undefined)
   const [productoId, setProductoId] = useState<string | undefined>(undefined)
@@ -54,7 +52,7 @@ export function NuevaCompra(): JSX.Element {
     setConfirmando(true)
 
     try {
-      await comprasService.crear({ items, proveedorId, usuarioId: usuario?.id })
+      await comprasService.crear({ items, proveedorId })
       navigate('/compras')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo registrar la compra')

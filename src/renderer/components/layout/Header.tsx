@@ -15,7 +15,8 @@ export function Header(): JSX.Element {
   const { usuario, logout } = useAuth()
   const navigate = useNavigate()
 
-  function handleLogout(): void {
+  async function handleLogout(): Promise<void> {
+    await window.api.auth.logout()
     logout()
     navigate('/login', { replace: true })
   }

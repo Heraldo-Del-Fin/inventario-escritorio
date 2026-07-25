@@ -11,24 +11,21 @@ const usuario: Usuario = {
 
 describe('auth.store', () => {
   beforeEach(() => {
-    useAuthStore.setState({ usuario: null, token: null })
+    useAuthStore.setState({ usuario: null })
   })
 
   it('empieza sin sesión', () => {
     expect(useAuthStore.getState().usuario).toBeNull()
-    expect(useAuthStore.getState().token).toBeNull()
   })
 
-  it('login guarda el usuario y el token', () => {
-    useAuthStore.getState().login(usuario, 'token-123')
+  it('login guarda el usuario', () => {
+    useAuthStore.getState().login(usuario)
     expect(useAuthStore.getState().usuario).toEqual(usuario)
-    expect(useAuthStore.getState().token).toBe('token-123')
   })
 
   it('logout limpia la sesión', () => {
-    useAuthStore.getState().login(usuario, 'token-123')
+    useAuthStore.getState().login(usuario)
     useAuthStore.getState().logout()
     expect(useAuthStore.getState().usuario).toBeNull()
-    expect(useAuthStore.getState().token).toBeNull()
   })
 })
