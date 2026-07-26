@@ -20,6 +20,9 @@ function seedClienteGeneral(): void {
   }
 
   writeCollection(COLLECTION, [general, ...clientes])
+  // Mismo motivo que en proveedores.ipc.ts: sin encolar esto, una venta que lo referencie
+  // fallaría al sincronizar porque el cliente nunca llegó a existir en la API.
+  encolarCambio('clientes', 'CREAR', general.id, general)
 }
 
 export function registerClientesIpc(): void {

@@ -20,6 +20,10 @@ function seedProveedorGeneral(): void {
   }
 
   writeCollection(COLLECTION, [general, ...proveedores])
+  // La API no siembra un proveedor general propio (esGeneral siempre queda en false ahí) —
+  // sin encolar esto, cualquier producto/compra que lo referencie fallaría al sincronizar
+  // porque el proveedor nunca llegó a existir en la API.
+  encolarCambio('proveedores', 'CREAR', general.id, general)
 }
 
 export function registerProveedoresIpc(): void {
