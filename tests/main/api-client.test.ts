@@ -3,10 +3,12 @@ import { ApiError, apiClient } from '@main/api/client'
 import { getSesion, limpiarSesion, setSesion } from '@main/api/session'
 
 function mockRespuesta(status: number, cuerpo: unknown): Response {
+  const texto = cuerpo === undefined ? '' : JSON.stringify(cuerpo)
   return {
     ok: status >= 200 && status < 300,
     status,
-    json: vi.fn().mockResolvedValue(cuerpo)
+    json: vi.fn().mockResolvedValue(cuerpo),
+    text: vi.fn().mockResolvedValue(texto)
   } as unknown as Response
 }
 
@@ -126,5 +128,13 @@ describe('api/client', () => {
 
     expect(resultado).toBeUndefined()
     expect(respuesta.json).not.toHaveBeenCalled()
+  })
+
+  it('un 200 con body vacío tampoco revienta (algunos DELETE de la API responden así, no siempre 204)', async () => {
+    const respuesta = mockRespuesta(200, undefined)
+    const fetchMock = vi.fn().mockResolvedValue(respuesta)
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(apiClient.delete('/usuarios/u1')).resolves.toBeUndefined()
   })
 })

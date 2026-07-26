@@ -90,8 +90,10 @@ async function solicitar<T>(
     )
   }
 
-  if (respuesta.status === 204) return undefined as T
-  return (await respuesta.json()) as T
+  // No alcanza con mirar el status: un 200/201 con body vacío (algunos DELETE) también
+  // rompería `.json()` con "Unexpected end of JSON input". Mirar el texto es a prueba de eso.
+  const texto = await respuesta.text()
+  return (texto ? JSON.parse(texto) : undefined) as T
 }
 
 export const apiClient = {
