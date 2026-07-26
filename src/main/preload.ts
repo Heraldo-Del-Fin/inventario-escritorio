@@ -10,12 +10,15 @@ import type {
   Producto,
   Proveedor,
   SesionAuth,
+  Sucursal,
   Usuario,
   Venta
 } from '@shared/types'
 
 type UsuarioNuevo = { nombre: string; email: string; rol: Usuario['rol']; password: string }
 type UsuarioCambios = { nombre?: string; email?: string; rol?: Usuario['rol']; password?: string }
+type SucursalNueva = { nombre: string }
+type SucursalCambios = { nombre?: string }
 type ProductoNuevo = Omit<Producto, 'id' | 'creadoEn' | 'actualizadoEn'>
 type MovimientoNuevo = Omit<MovimientoInventario, 'id' | 'creadoEn' | 'usuarioId'>
 type VentaNueva = Omit<Venta, 'id' | 'creadoEn' | 'total' | 'usuarioId'>
@@ -38,6 +41,17 @@ const api = {
     actualizar: (id: string, cambios: UsuarioCambios): Promise<Usuario> =>
       ipcRenderer.invoke(IpcChannels.USUARIOS_ACTUALIZAR, id, cambios),
     eliminar: (id: string): Promise<void> => ipcRenderer.invoke(IpcChannels.USUARIOS_ELIMINAR, id)
+  },
+  sucursales: {
+    listar: (): Promise<Sucursal[]> => ipcRenderer.invoke(IpcChannels.SUCURSALES_LISTAR),
+    obtener: (id: string): Promise<Sucursal | null> =>
+      ipcRenderer.invoke(IpcChannels.SUCURSALES_OBTENER, id),
+    crear: (sucursal: SucursalNueva): Promise<Sucursal> =>
+      ipcRenderer.invoke(IpcChannels.SUCURSALES_CREAR, sucursal),
+    actualizar: (id: string, cambios: SucursalCambios): Promise<Sucursal> =>
+      ipcRenderer.invoke(IpcChannels.SUCURSALES_ACTUALIZAR, id, cambios),
+    eliminar: (id: string): Promise<void> =>
+      ipcRenderer.invoke(IpcChannels.SUCURSALES_ELIMINAR, id)
   },
   productos: {
     listar: (): Promise<Producto[]> => ipcRenderer.invoke(IpcChannels.PRODUCTOS_LISTAR),

@@ -82,6 +82,14 @@ export interface Usuario {
   rol: 'ADMIN' | 'VENDEDOR' | 'ALMACEN'
 }
 
+export interface Sucursal {
+  id: string
+  nombre: string
+  /** La sucursal sembrada por la API al arrancar. No se puede eliminar. */
+  esPrincipal: boolean
+  creadoEn: string
+}
+
 export interface Credenciales {
   email: string
   password: string

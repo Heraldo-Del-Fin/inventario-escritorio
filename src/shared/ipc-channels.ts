@@ -29,6 +29,12 @@ export const IpcChannels = {
   PROVEEDORES_ACTUALIZAR: 'proveedores:actualizar',
   PROVEEDORES_ELIMINAR: 'proveedores:eliminar',
 
+  SUCURSALES_LISTAR: 'sucursales:listar',
+  SUCURSALES_OBTENER: 'sucursales:obtener',
+  SUCURSALES_CREAR: 'sucursales:crear',
+  SUCURSALES_ACTUALIZAR: 'sucursales:actualizar',
+  SUCURSALES_ELIMINAR: 'sucursales:eliminar',
+
   CLIENTES_LISTAR: 'clientes:listar',
   CLIENTES_OBTENER: 'clientes:obtener',
   CLIENTES_CREAR: 'clientes:crear',

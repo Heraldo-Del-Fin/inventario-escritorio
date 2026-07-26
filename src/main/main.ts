@@ -2,6 +2,7 @@ import { app, BrowserWindow } from 'electron'
 import { createMainWindow } from './windows/createMainWindow'
 import { registerAuthIpc } from './ipc/auth.ipc'
 import { registerUsuariosIpc } from './ipc/usuarios.ipc'
+import { registerSucursalesIpc } from './ipc/sucursales.ipc'
 import { registerProductosIpc } from './ipc/productos.ipc'
 import { registerInventarioIpc } from './ipc/inventario.ipc'
 import { registerVentasIpc } from './ipc/ventas.ipc'
@@ -21,6 +22,7 @@ app.whenReady().then(() => {
 
   registerAuthIpc()
   registerUsuariosIpc()
+  registerSucursalesIpc()
   registerProductosIpc()
   registerInventarioIpc()
   registerVentasIpc()

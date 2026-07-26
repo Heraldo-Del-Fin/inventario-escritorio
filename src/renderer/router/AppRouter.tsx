@@ -20,6 +20,8 @@ import { Reportes } from '@/pages/Reportes'
 import { Configuracion } from '@/pages/Configuracion'
 import { UsuariosList } from '@/pages/Configuracion/UsuariosList'
 import { UsuarioForm } from '@/pages/Configuracion/UsuarioForm'
+import { SucursalesList } from '@/pages/Configuracion/SucursalesList'
+import { SucursalForm } from '@/pages/Configuracion/SucursalForm'
 import { Respaldos } from '@/pages/Configuracion/Respaldos'
 import { RequireAuth } from './RequireAuth'
 import { RequireRole } from './RequireRole'
@@ -83,6 +85,30 @@ export function AppRouter(): JSX.Element {
           element={
             <RequireRole roles={['ADMIN']}>
               <UsuarioForm />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/configuracion/sucursales"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <SucursalesList />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/configuracion/sucursales/nueva"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <SucursalForm />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/configuracion/sucursales/:id/editar"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <SucursalForm />
             </RequireRole>
           }
         />

@@ -13,6 +13,13 @@ export function installMockWindowApi() {
       actualizar: vi.fn(),
       eliminar: vi.fn()
     },
+    sucursales: {
+      listar: vi.fn(),
+      obtener: vi.fn(),
+      crear: vi.fn(),
+      actualizar: vi.fn(),
+      eliminar: vi.fn()
+    },
     productos: {
       listar: vi.fn(),
       obtener: vi.fn(),
