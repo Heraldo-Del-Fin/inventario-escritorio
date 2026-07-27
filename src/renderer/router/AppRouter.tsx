@@ -22,6 +22,8 @@ import { UsuariosList } from '@/pages/Configuracion/UsuariosList'
 import { UsuarioForm } from '@/pages/Configuracion/UsuarioForm'
 import { SucursalesList } from '@/pages/Configuracion/SucursalesList'
 import { SucursalForm } from '@/pages/Configuracion/SucursalForm'
+import { HistorialTransferencias } from '@/pages/Transferencias/HistorialTransferencias'
+import { NuevaTransferencia } from '@/pages/Transferencias/NuevaTransferencia'
 import { Respaldos } from '@/pages/Configuracion/Respaldos'
 import { RequireAuth } from './RequireAuth'
 import { RequireRole } from './RequireRole'
@@ -109,6 +111,22 @@ export function AppRouter(): JSX.Element {
           element={
             <RequireRole roles={['ADMIN']}>
               <SucursalForm />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/configuracion/transferencias"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <HistorialTransferencias />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/configuracion/transferencias/nueva"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <NuevaTransferencia />
             </RequireRole>
           }
         />

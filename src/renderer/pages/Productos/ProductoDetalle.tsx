@@ -1,8 +1,9 @@
 import { type JSX, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { Producto } from '@shared/types'
+import type { Producto, StockPorSucursalItem } from '@shared/types'
 import { productosService } from '@/services/productos.service'
 import { useProveedores } from '@/hooks/useProveedores'
+import { useAuth } from '@/hooks/useAuth'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 import {
   Button,
@@ -13,18 +14,24 @@ import {
   Row,
   Spin,
   Statistic,
+  Table,
   Tag,
   Typography
 } from 'antd'
 import { EditOutlined, ShoppingOutlined } from '@ant-design/icons'
+import { ErrorAlert } from '@/components/common/ErrorAlert'
 
 export function ProductoDetalle(): JSX.Element {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { usuario } = useAuth()
   const { proveedores } = useProveedores()
   const [producto, setProducto] = useState<Producto | null>(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [stockPorSucursal, setStockPorSucursal] = useState<StockPorSucursalItem[]>([])
+  const [cargandoStock, setCargandoStock] = useState(false)
+  const [errorStock, setErrorStock] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -35,6 +42,19 @@ export function ProductoDetalle(): JSX.Element {
       .catch(() => setError('No se pudo cargar el producto'))
       .finally(() => setCargando(false))
   }, [id])
+
+  useEffect(() => {
+    // Este desglose vive en la API (es la única que conoce el stock de las demás
+    // sucursales) y solo tiene sentido para un ADMIN, que es quien puede ver todas.
+    if (!id || usuario?.rol !== 'ADMIN') return
+
+    setCargandoStock(true)
+    productosService
+      .obtenerStockPorSucursal(id)
+      .then(setStockPorSucursal)
+      .catch(() => setErrorStock('No se pudo cargar el stock por sucursal'))
+      .finally(() => setCargandoStock(false))
+  }, [id, usuario?.rol])
 
   if (cargando) {
     return (
@@ -134,6 +154,24 @@ export function ProductoDetalle(): JSX.Element {
           </Col>
         </Row>
       </Card>
+
+      {usuario?.rol === 'ADMIN' && (
+        <Card title="Stock por sucursal" className="mt-4">
+          <ErrorAlert mensaje={errorStock} />
+          <Table
+            rowKey="sucursalId"
+            size="small"
+            loading={cargandoStock}
+            pagination={false}
+            dataSource={stockPorSucursal}
+            columns={[
+              { title: 'Sucursal', dataIndex: 'sucursalNombre' },
+              { title: 'Stock', dataIndex: 'stock' },
+              { title: 'Stock mínimo', dataIndex: 'stockMinimo' }
+            ]}
+          />
+        </Card>
+      )}
     </section>
   )
 }

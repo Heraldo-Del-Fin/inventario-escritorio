@@ -1,9 +1,10 @@
 import { randomUUID } from 'crypto'
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc-channels'
-import type { Producto } from '@shared/types'
+import type { Producto, StockPorSucursalItem } from '@shared/types'
 import { readCollection, writeCollection } from '../store/localStore'
 import { encolarCambio } from '../sync/outbox'
+import { apiClient } from '../api/client'
 
 const COLLECTION = 'productos'
 
@@ -140,4 +141,14 @@ export function registerProductosIpc(): void {
     // del outbox (ver migracion-api-compatibilidad.md §8) sigue siendo 1:1 así.
     encolarCambio('productos', 'ELIMINAR', id, null)
   })
+
+  // A diferencia del resto de este archivo (100% local, JSON + outbox), este handler habla
+  // directo con la API: es la única fuente que conoce el stock en las demás sucursales, algo
+  // que el JSON local de este dispositivo (siempre el de "su" propia sucursal) no puede resolver.
+  ipcMain.handle(
+    IpcChannels.PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL,
+    async (_event, id: string): Promise<StockPorSucursalItem[]> => {
+      return apiClient.get<StockPorSucursalItem[]>(`/productos/${id}/stock`)
+    }
+  )
 }

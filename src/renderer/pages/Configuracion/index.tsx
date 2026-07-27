@@ -1,7 +1,7 @@
 import type { JSX } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button, Card, Space, Typography } from 'antd'
-import { CloudSyncOutlined, ShopOutlined, TeamOutlined } from '@ant-design/icons'
+import { CloudSyncOutlined, ShopOutlined, SwapOutlined, TeamOutlined } from '@ant-design/icons'
 import { useAuth } from '@/hooks/useAuth'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 
@@ -33,6 +33,13 @@ export function Configuracion(): JSX.Element {
               block
             >
               Gestión de sucursales
+            </Button>
+            <Button
+              icon={<SwapOutlined />}
+              onClick={() => navigate('/configuracion/transferencias')}
+              block
+            >
+              Transferencias entre sucursales
             </Button>
             <Button
               icon={<CloudSyncOutlined />}

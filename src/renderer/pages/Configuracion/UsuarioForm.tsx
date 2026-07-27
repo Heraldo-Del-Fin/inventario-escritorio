@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { Button, Card, Form, Input, Select, Typography } from 'antd'
 import type { Usuario } from '@shared/types'
 import { useAuth } from '@/hooks/useAuth'
+import { useSucursales } from '@/hooks/useSucursales'
 import { usuariosService } from '@/services/usuarios.service'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 import { ErrorAlert } from '@/components/common/ErrorAlert'
@@ -13,6 +14,7 @@ interface UsuarioFormValues {
   email: string
   rol: Usuario['rol']
   password?: string
+  sucursalId?: string
 }
 
 export function UsuarioForm(): JSX.Element {
@@ -20,7 +22,9 @@ export function UsuarioForm(): JSX.Element {
   const esEdicion = Boolean(id)
   const navigate = useNavigate()
   const { usuario: usuarioActual, login } = useAuth()
+  const { sucursales } = useSucursales()
   const [form] = Form.useForm<UsuarioFormValues>()
+  const rol = Form.useWatch('rol', form)
 
   const [cargando, setCargando] = useState(esEdicion)
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +36,12 @@ export function UsuarioForm(): JSX.Element {
     usuariosService
       .obtener(id)
       .then((usuario) => {
-        form.setFieldsValue({ nombre: usuario.nombre, email: usuario.email, rol: usuario.rol })
+        form.setFieldsValue({
+          nombre: usuario.nombre,
+          email: usuario.email,
+          rol: usuario.rol,
+          sucursalId: usuario.sucursalId ?? undefined
+        })
       })
       .catch(() => setError('No se pudo cargar el usuario'))
       .finally(() => setCargando(false))
@@ -48,7 +57,8 @@ export function UsuarioForm(): JSX.Element {
           nombre: values.nombre,
           email: values.email,
           rol: values.rol,
-          ...(values.password ? { password: values.password } : {})
+          ...(values.password ? { password: values.password } : {}),
+          ...(values.rol !== 'ADMIN' ? { sucursalId: values.sucursalId } : {})
         }
         const actualizado = await usuariosService.actualizar(id, cambios)
 
@@ -65,7 +75,8 @@ export function UsuarioForm(): JSX.Element {
           nombre: values.nombre,
           email: values.email,
           rol: values.rol,
-          password: values.password
+          password: values.password,
+          ...(values.rol !== 'ADMIN' ? { sucursalId: values.sucursalId } : {})
         })
       }
 
@@ -129,6 +140,22 @@ export function UsuarioForm(): JSX.Element {
               ]}
             />
           </Form.Item>
+
+          {rol !== 'ADMIN' && (
+            <Form.Item
+              name="sucursalId"
+              label="Sucursal"
+              rules={[{ required: true, message: 'La sucursal es obligatoria' }]}
+              extra="Un administrador no queda atado a ninguna sucursal."
+            >
+              <Select
+                options={sucursales.map((sucursal) => ({
+                  value: sucursal.id,
+                  label: sucursal.nombre
+                }))}
+              />
+            </Form.Item>
+          )}
 
           <Form.Item
             name="password"

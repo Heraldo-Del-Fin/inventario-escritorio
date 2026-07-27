@@ -5,6 +5,7 @@ import { EditOutlined, PlusOutlined } from '@ant-design/icons'
 import type { Usuario } from '@shared/types'
 import { useAuth } from '@/hooks/useAuth'
 import { useUsuarios } from '@/hooks/useUsuarios'
+import { useSucursales } from '@/hooks/useSucursales'
 import { usuariosService } from '@/services/usuarios.service'
 import { VolverDashboard } from '@/components/common/VolverDashboard'
 import { ErrorAlert } from '@/components/common/ErrorAlert'
@@ -18,7 +19,13 @@ const COLOR_ROL: Record<Usuario['rol'], string> = {
 export function UsuariosList(): JSX.Element {
   const { usuario: usuarioActual } = useAuth()
   const { usuarios, cargando, recargar, error: errorCarga } = useUsuarios()
+  const { sucursales } = useSucursales()
   const [error, setError] = useState<string | null>(null)
+
+  const nombreSucursal = (sucursalId?: string | null): string => {
+    if (!sucursalId) return '—'
+    return sucursales.find((sucursal) => sucursal.id === sucursalId)?.nombre ?? '—'
+  }
 
   async function handleEliminar(id: string): Promise<void> {
     setError(null)
@@ -37,6 +44,11 @@ export function UsuariosList(): JSX.Element {
       title: 'Rol',
       dataIndex: 'rol',
       render: (rol: Usuario['rol']) => <Tag color={COLOR_ROL[rol]}>{rol}</Tag>
+    },
+    {
+      title: 'Sucursal',
+      dataIndex: 'sucursalId',
+      render: (sucursalId: string | null | undefined) => nombreSucursal(sucursalId)
     },
     {
       title: '',

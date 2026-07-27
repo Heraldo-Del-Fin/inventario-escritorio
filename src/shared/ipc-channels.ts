@@ -13,6 +13,7 @@ export const IpcChannels = {
   PRODUCTOS_CREAR: 'productos:crear',
   PRODUCTOS_ACTUALIZAR: 'productos:actualizar',
   PRODUCTOS_ELIMINAR: 'productos:eliminar',
+  PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL: 'productos:obtener-stock-por-sucursal',
 
   INVENTARIO_LISTAR_MOVIMIENTOS: 'inventario:listar-movimientos',
   INVENTARIO_REGISTRAR_MOVIMIENTO: 'inventario:registrar-movimiento',
@@ -40,6 +41,9 @@ export const IpcChannels = {
   CLIENTES_CREAR: 'clientes:crear',
   CLIENTES_ACTUALIZAR: 'clientes:actualizar',
   CLIENTES_ELIMINAR: 'clientes:eliminar',
+
+  TRANSFERENCIAS_LISTAR: 'transferencias:listar',
+  TRANSFERENCIAS_CREAR: 'transferencias:crear',
 
   IMPRESION_IMPRIMIR_TICKET: 'impresion:imprimir-ticket',
 

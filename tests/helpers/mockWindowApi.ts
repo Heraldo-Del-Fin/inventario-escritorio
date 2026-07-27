@@ -25,7 +25,8 @@ export function installMockWindowApi() {
       obtener: vi.fn(),
       crear: vi.fn(),
       actualizar: vi.fn(),
-      eliminar: vi.fn()
+      eliminar: vi.fn(),
+      obtenerStockPorSucursal: vi.fn()
     },
     inventario: {
       listarMovimientos: vi.fn(),
@@ -52,6 +53,10 @@ export function installMockWindowApi() {
       crear: vi.fn(),
       actualizar: vi.fn(),
       eliminar: vi.fn()
+    },
+    transferencias: {
+      listar: vi.fn(),
+      crear: vi.fn()
     },
     impresion: {
       imprimirTicket: vi.fn()

@@ -1,4 +1,4 @@
-import type { Producto } from '@shared/types'
+import type { Producto, StockPorSucursalItem } from '@shared/types'
 
 export const productosService = {
   listar: async (): Promise<Producto[]> => {
@@ -23,5 +23,9 @@ export const productosService = {
 
   eliminar: async (id: string): Promise<void> => {
     return window.api.productos.eliminar(id)
+  },
+
+  obtenerStockPorSucursal: async (id: string): Promise<StockPorSucursalItem[]> => {
+    return window.api.productos.obtenerStockPorSucursal(id)
   }
 }

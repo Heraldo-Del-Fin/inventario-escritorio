@@ -11,8 +11,20 @@ interface RespuestaPaginada<T> {
   limit: number
 }
 
-type UsuarioNuevo = { nombre: string; email: string; rol: Usuario['rol']; password: string }
-type UsuarioCambios = { nombre?: string; email?: string; rol?: Usuario['rol']; password?: string }
+type UsuarioNuevo = {
+  nombre: string
+  email: string
+  rol: Usuario['rol']
+  password: string
+  sucursalId?: string
+}
+type UsuarioCambios = {
+  nombre?: string
+  email?: string
+  rol?: Usuario['rol']
+  password?: string
+  sucursalId?: string
+}
 
 export function registerUsuariosIpc(): void {
   ipcMain.handle(IpcChannels.USUARIOS_LISTAR, async (): Promise<Usuario[]> => {

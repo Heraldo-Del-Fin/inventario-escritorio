@@ -1,18 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IpcChannels } from '@shared/ipc-channels'
-import type { Producto } from '@shared/types'
+import type { Producto, StockPorSucursalItem } from '@shared/types'
 import type { CambioPendiente } from '@shared/types'
 import { createIpcMainMock } from '../helpers/mockIpc'
 import { createLocalStoreMock } from '../helpers/mockLocalStore'
 
 const ipc = createIpcMainMock()
 const store = createLocalStoreMock()
+const apiClient = { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() }
 
 vi.mock('electron', () => ({ ipcMain: ipc.ipcMain }))
 vi.mock('@main/store/localStore', () => ({
   readCollection: store.readCollection,
   writeCollection: store.writeCollection
 }))
+vi.mock('@main/api/client', () => ({ apiClient }))
 
 const { registerProductosIpc } = await import('@main/ipc/productos.ipc')
 registerProductosIpc()
@@ -153,5 +155,23 @@ describe('productos.ipc', () => {
     const operaciones = cambiosEncolados().map((c) => c.operacion)
     expect(operaciones).toEqual(['CREAR', 'ACTUALIZAR', 'ELIMINAR'])
     expect(cambiosEncolados().every((c) => c.estado === 'PENDIENTE')).toBe(true)
+  })
+
+  describe('obtenerStockPorSucursal (a diferencia del resto, habla directo con la API)', () => {
+    it('pide el desglose a la API en vez de mirar el JSON local', async () => {
+      const desglose: StockPorSucursalItem[] = [
+        { sucursalId: 's1', sucursalNombre: 'Principal', stock: 8, stockMinimo: 2 },
+        { sucursalId: 's2', sucursalNombre: 'Norte', stock: 0, stockMinimo: 0 }
+      ]
+      apiClient.get.mockResolvedValue(desglose)
+
+      const resultado = await ipc.invoke<StockPorSucursalItem[]>(
+        IpcChannels.PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL,
+        'p1'
+      )
+
+      expect(apiClient.get).toHaveBeenCalledWith('/productos/p1/stock')
+      expect(resultado).toEqual(desglose)
+    })
   })
 })

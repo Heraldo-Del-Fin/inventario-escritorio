@@ -80,6 +80,8 @@ export interface Usuario {
   nombre: string
   email: string
   rol: 'ADMIN' | 'VENDEDOR' | 'ALMACEN'
+  /** Sucursal fija del usuario. `null` para ADMIN (no queda atado a ninguna). */
+  sucursalId?: string | null
 }
 
 export interface Sucursal {
@@ -87,6 +89,25 @@ export interface Sucursal {
   nombre: string
   /** La sucursal sembrada por la API al arrancar. No se puede eliminar. */
   esPrincipal: boolean
+  creadoEn: string
+}
+
+/** Desglose del stock de un producto en una sucursal — viene siempre de la API, nunca del JSON local. */
+export interface StockPorSucursalItem {
+  sucursalId: string
+  sucursalNombre: string
+  stock: number
+  stockMinimo: number
+}
+
+export interface Transferencia {
+  id: string
+  productoId: string
+  sucursalOrigenId: string
+  sucursalDestinoId: string
+  cantidad: number
+  motivo?: string
+  usuarioId?: string
   creadoEn: string
 }
 

@@ -9,10 +9,12 @@ import { registerVentasIpc } from './ipc/ventas.ipc'
 import { registerComprasIpc } from './ipc/compras.ipc'
 import { registerProveedoresIpc } from './ipc/proveedores.ipc'
 import { registerClientesIpc } from './ipc/clientes.ipc'
+import { registerTransferenciasIpc } from './ipc/transferencias.ipc'
 import { registerImpresionIpc } from './ipc/impresion.ipc'
 import { registerSyncIpc } from './ipc/sync.ipc'
 import { registerBackupIpc } from './ipc/backup.ipc'
 import { crearRespaldo } from './backup/backup'
+import { detenerKeepAlive, iniciarKeepAlive } from './api/keepAlive'
 
 app.whenReady().then(() => {
   // Respaldo del estado actual de los datos antes de cualquier otra cosa: si esta
@@ -29,9 +31,12 @@ app.whenReady().then(() => {
   registerComprasIpc()
   registerProveedoresIpc()
   registerClientesIpc()
+  registerTransferenciasIpc()
   registerImpresionIpc()
   registerSyncIpc()
   registerBackupIpc()
+
+  iniciarKeepAlive()
 
   createMainWindow()
 
@@ -43,6 +48,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  detenerKeepAlive()
   if (process.platform !== 'darwin') {
     app.quit()
   }

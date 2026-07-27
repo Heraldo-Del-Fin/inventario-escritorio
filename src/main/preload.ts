@@ -10,15 +10,36 @@ import type {
   Producto,
   Proveedor,
   SesionAuth,
+  StockPorSucursalItem,
   Sucursal,
+  Transferencia,
   Usuario,
   Venta
 } from '@shared/types'
 
-type UsuarioNuevo = { nombre: string; email: string; rol: Usuario['rol']; password: string }
-type UsuarioCambios = { nombre?: string; email?: string; rol?: Usuario['rol']; password?: string }
+type UsuarioNuevo = {
+  nombre: string
+  email: string
+  rol: Usuario['rol']
+  password: string
+  sucursalId?: string
+}
+type UsuarioCambios = {
+  nombre?: string
+  email?: string
+  rol?: Usuario['rol']
+  password?: string
+  sucursalId?: string
+}
 type SucursalNueva = { nombre: string }
 type SucursalCambios = { nombre?: string }
+type TransferenciaNueva = {
+  productoId: string
+  sucursalOrigenId: string
+  sucursalDestinoId: string
+  cantidad: number
+  motivo?: string
+}
 type ProductoNuevo = Omit<Producto, 'id' | 'creadoEn' | 'actualizadoEn'>
 type MovimientoNuevo = Omit<MovimientoInventario, 'id' | 'creadoEn' | 'usuarioId'>
 type VentaNueva = Omit<Venta, 'id' | 'creadoEn' | 'total' | 'usuarioId'>
@@ -61,7 +82,9 @@ const api = {
       ipcRenderer.invoke(IpcChannels.PRODUCTOS_CREAR, producto),
     actualizar: (id: string, cambios: Partial<Producto>): Promise<Producto> =>
       ipcRenderer.invoke(IpcChannels.PRODUCTOS_ACTUALIZAR, id, cambios),
-    eliminar: (id: string): Promise<void> => ipcRenderer.invoke(IpcChannels.PRODUCTOS_ELIMINAR, id)
+    eliminar: (id: string): Promise<void> => ipcRenderer.invoke(IpcChannels.PRODUCTOS_ELIMINAR, id),
+    obtenerStockPorSucursal: (id: string): Promise<StockPorSucursalItem[]> =>
+      ipcRenderer.invoke(IpcChannels.PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL, id)
   },
   inventario: {
     listarMovimientos: (): Promise<MovimientoInventario[]> =>
@@ -99,6 +122,11 @@ const api = {
     actualizar: (id: string, cambios: Partial<Cliente>): Promise<Cliente> =>
       ipcRenderer.invoke(IpcChannels.CLIENTES_ACTUALIZAR, id, cambios),
     eliminar: (id: string): Promise<void> => ipcRenderer.invoke(IpcChannels.CLIENTES_ELIMINAR, id)
+  },
+  transferencias: {
+    listar: (): Promise<Transferencia[]> => ipcRenderer.invoke(IpcChannels.TRANSFERENCIAS_LISTAR),
+    crear: (transferencia: TransferenciaNueva): Promise<Transferencia> =>
+      ipcRenderer.invoke(IpcChannels.TRANSFERENCIAS_CREAR, transferencia)
   },
   impresion: {
     imprimirTicket: (ventaId: string): Promise<boolean> =>

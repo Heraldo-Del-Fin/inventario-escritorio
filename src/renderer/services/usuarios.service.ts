@@ -5,6 +5,7 @@ interface UsuarioNuevo {
   email: string
   rol: Usuario['rol']
   password: string
+  sucursalId?: string
 }
 
 interface UsuarioCambios {
@@ -12,6 +13,7 @@ interface UsuarioCambios {
   email?: string
   rol?: Usuario['rol']
   password?: string
+  sucursalId?: string
 }
 
 export const usuariosService = {
