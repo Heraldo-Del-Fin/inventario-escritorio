@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 import { ipcMain } from 'electron'
 import { IpcChannels } from '@shared/ipc-channels'
-import type { Producto, StockPorSucursalItem } from '@shared/types'
+import type { InventarioPorSucursalItem, Producto, StockPorSucursalItem } from '@shared/types'
 import { readCollection, writeCollection } from '../store/localStore'
 import { encolarCambio } from '../sync/outbox'
 import { apiClient } from '../api/client'
@@ -149,6 +149,15 @@ export function registerProductosIpc(): void {
     IpcChannels.PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL,
     async (_event, id: string): Promise<StockPorSucursalItem[]> => {
       return apiClient.get<StockPorSucursalItem[]>(`/productos/${id}/stock`)
+    }
+  )
+
+  // Misma salvedad que el handler anterior: esto es el inventario completo (todos los
+  // productos, en cuál sucursal está cada uno), otra cosa que solo la API puede responder.
+  ipcMain.handle(
+    IpcChannels.PRODUCTOS_LISTAR_INVENTARIO_POR_SUCURSAL,
+    async (): Promise<InventarioPorSucursalItem[]> => {
+      return apiClient.get<InventarioPorSucursalItem[]>('/productos/stock')
     }
   )
 }

@@ -22,6 +22,7 @@ import { UsuariosList } from '@/pages/Configuracion/UsuariosList'
 import { UsuarioForm } from '@/pages/Configuracion/UsuarioForm'
 import { SucursalesList } from '@/pages/Configuracion/SucursalesList'
 import { SucursalForm } from '@/pages/Configuracion/SucursalForm'
+import { InventarioSucursales } from '@/pages/Configuracion/InventarioSucursales'
 import { HistorialTransferencias } from '@/pages/Transferencias/HistorialTransferencias'
 import { NuevaTransferencia } from '@/pages/Transferencias/NuevaTransferencia'
 import { Respaldos } from '@/pages/Configuracion/Respaldos'
@@ -111,6 +112,14 @@ export function AppRouter(): JSX.Element {
           element={
             <RequireRole roles={['ADMIN']}>
               <SucursalForm />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/configuracion/inventario-sucursales"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <InventarioSucursales />
             </RequireRole>
           }
         />

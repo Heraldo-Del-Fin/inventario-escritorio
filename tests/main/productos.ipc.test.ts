@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { IpcChannels } from '@shared/ipc-channels'
-import type { Producto, StockPorSucursalItem } from '@shared/types'
+import type { InventarioPorSucursalItem, Producto, StockPorSucursalItem } from '@shared/types'
 import type { CambioPendiente } from '@shared/types'
 import { createIpcMainMock } from '../helpers/mockIpc'
 import { createLocalStoreMock } from '../helpers/mockLocalStore'
@@ -172,6 +172,29 @@ describe('productos.ipc', () => {
 
       expect(apiClient.get).toHaveBeenCalledWith('/productos/p1/stock')
       expect(resultado).toEqual(desglose)
+    })
+  })
+
+  describe('listarInventarioPorSucursal (también habla directo con la API)', () => {
+    it('pide el inventario completo a la API', async () => {
+      const inventario: InventarioPorSucursalItem[] = [
+        {
+          productoId: 'p1',
+          productoNombre: 'Tornillo',
+          sucursalId: 's1',
+          sucursalNombre: 'Principal',
+          stock: 8,
+          stockMinimo: 2
+        }
+      ]
+      apiClient.get.mockResolvedValue(inventario)
+
+      const resultado = await ipc.invoke<InventarioPorSucursalItem[]>(
+        IpcChannels.PRODUCTOS_LISTAR_INVENTARIO_POR_SUCURSAL
+      )
+
+      expect(apiClient.get).toHaveBeenCalledWith('/productos/stock')
+      expect(resultado).toEqual(inventario)
     })
   })
 })

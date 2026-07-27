@@ -14,6 +14,7 @@ export const IpcChannels = {
   PRODUCTOS_ACTUALIZAR: 'productos:actualizar',
   PRODUCTOS_ELIMINAR: 'productos:eliminar',
   PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL: 'productos:obtener-stock-por-sucursal',
+  PRODUCTOS_LISTAR_INVENTARIO_POR_SUCURSAL: 'productos:listar-inventario-por-sucursal',
 
   INVENTARIO_LISTAR_MOVIMIENTOS: 'inventario:listar-movimientos',
   INVENTARIO_REGISTRAR_MOVIMIENTO: 'inventario:registrar-movimiento',

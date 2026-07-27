@@ -26,7 +26,8 @@ export function installMockWindowApi() {
       crear: vi.fn(),
       actualizar: vi.fn(),
       eliminar: vi.fn(),
-      obtenerStockPorSucursal: vi.fn()
+      obtenerStockPorSucursal: vi.fn(),
+      listarInventarioPorSucursal: vi.fn()
     },
     inventario: {
       listarMovimientos: vi.fn(),

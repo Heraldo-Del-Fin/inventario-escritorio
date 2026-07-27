@@ -100,6 +100,16 @@ export interface StockPorSucursalItem {
   stockMinimo: number
 }
 
+/** Inventario completo: qué producto tiene stock en cuál sucursal. También viene siempre de la API. */
+export interface InventarioPorSucursalItem {
+  productoId: string
+  productoNombre: string
+  sucursalId: string
+  sucursalNombre: string
+  stock: number
+  stockMinimo: number
+}
+
 export interface Transferencia {
   id: string
   productoId: string

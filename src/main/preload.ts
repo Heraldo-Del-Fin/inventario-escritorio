@@ -5,6 +5,7 @@ import type {
   Cliente,
   Credenciales,
   EstadoSincronizacion,
+  InventarioPorSucursalItem,
   MovimientoInventario,
   OrdenCompra,
   Producto,
@@ -84,7 +85,9 @@ const api = {
       ipcRenderer.invoke(IpcChannels.PRODUCTOS_ACTUALIZAR, id, cambios),
     eliminar: (id: string): Promise<void> => ipcRenderer.invoke(IpcChannels.PRODUCTOS_ELIMINAR, id),
     obtenerStockPorSucursal: (id: string): Promise<StockPorSucursalItem[]> =>
-      ipcRenderer.invoke(IpcChannels.PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL, id)
+      ipcRenderer.invoke(IpcChannels.PRODUCTOS_OBTENER_STOCK_POR_SUCURSAL, id),
+    listarInventarioPorSucursal: (): Promise<InventarioPorSucursalItem[]> =>
+      ipcRenderer.invoke(IpcChannels.PRODUCTOS_LISTAR_INVENTARIO_POR_SUCURSAL)
   },
   inventario: {
     listarMovimientos: (): Promise<MovimientoInventario[]> =>
